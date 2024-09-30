@@ -8,9 +8,7 @@ struct Node {
 };
 
 struct Stack {
-    Node* head;
-
-    Stack() : head(nullptr) {} // Конструктор для инициализации стека
+    Node* head = nullptr; // Инициализация стека
 };
 
 // Добавление элемента в стек (push)
