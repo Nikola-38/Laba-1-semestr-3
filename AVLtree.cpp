@@ -1,105 +1,112 @@
 #include <iostream>
-#include <iomanip> // Для std::setw
+#include <fstream>
+#include <iomanip>
+
+#include <string>
 using namespace std;
 
-struct Node {
-    int data;
-    Node* left = nullptr;
-    Node* right = nullptr;
+struct AVLNode {
+    int data = 0;
+    AVLNode* left = nullptr;
+    AVLNode* right = nullptr;
     int balance = 0;
 };
 
 // Функция для вычисления высоты узла
-int Height(Node* root) {
+int HeightAVL(AVLNode* root) {
     if (root == nullptr) {
         return 0;
     }
-    int leftHeight = Height(root->left);
-    int rightHeight = Height(root->right);
-    return max(leftHeight, rightHeight) + 1;
+    return max(HeightAVL(root->left), HeightAVL(root->right)) + 1;
 }
 
 // Функция для установки баланса узла
-void SetBalance(Node* root) {
+void SetBalanceAVL(AVLNode* root) {
     if (root != nullptr) {
-        root->balance = Height(root->left) - Height(root->right);
+        root->balance = HeightAVL(root->left) - HeightAVL(root->right);
     }
 }
 
 // Правый поворот
-void TurnRight(Node*& root) {
-    Node* leftSubtree = root->left;
-    Node* leftSubtreeRightSubtree = leftSubtree->right;
+void TurnRightAVL(AVLNode*& root) {
+    AVLNode* leftSubtree = root->left;
+    AVLNode* leftSubtreeRightSubtree = leftSubtree->right;
 
     leftSubtree->right = root;
     root->left = leftSubtreeRightSubtree;
 
-    SetBalance(root);
-    SetBalance(leftSubtree);
+    SetBalanceAVL(root);
+    SetBalanceAVL(leftSubtree);
 
     root = leftSubtree; // Новый корень
 }
 
 // Левый поворот
-void TurnLeft(Node*& root) {
-    Node* rightSubtree = root->right;
-    Node* rightSubtreeLeftSubtree = rightSubtree->left;
+void TurnLeftAVL(AVLNode*& root) {
+    AVLNode* rightSubtree = root->right;
+    AVLNode* rightSubtreeLeftSubtree = rightSubtree->left;
 
     rightSubtree->left = root;
     root->right = rightSubtreeLeftSubtree;
 
-    SetBalance(root);
-    SetBalance(rightSubtree);
+    SetBalanceAVL(root);
+    SetBalanceAVL(rightSubtree);
 
     root = rightSubtree; // Новый корень
 }
 
 // Вставка узла
-void Insert(Node*& root, int key) {
+void InsertAVL(AVLNode*& root, int key) {
     if (root == nullptr) {
-        root = new Node();
+        root = new AVLNode();
         root->data = key;
         return;
     }
 
     if (key < root->data) {
-        Insert(root->left, key);
-    } else if (key > root->data) {
-        Insert(root->right, key);
-    } else {
+        InsertAVL(root->left, key);
+    }
+    else if (key > root->data) {
+        InsertAVL(root->right, key);
+    }
+    else {
         return; // Дубликаты не допускаются
     }
 
-    SetBalance(root);
+    SetBalanceAVL(root);
 
     // Балансировка
     if (root->balance > 1) {
         if (key < root->left->data) {
-            TurnRight(root); // LL
-        } else {
-            TurnLeft(root->left); // LR
-            TurnRight(root);
+            TurnRightAVL(root); // LL
+        }
+        else {
+            TurnLeftAVL(root->left); // LR
+            TurnRightAVL(root);
         }
     }
 
     if (root->balance < -1) {
         if (key > root->right->data) {
-            TurnLeft(root); // RR
-        } else {
-            TurnRight(root->right); // RL
-            TurnLeft(root);
+            TurnLeftAVL(root); // RR
+        }
+        else {
+            TurnRightAVL(root->right); // RL
+            TurnLeftAVL(root);
         }
     }
 }
 
 // Поиск узла
-bool Search(Node* root, int key) {
+bool SearchAVL(AVLNode* root, int key) {
     while (root) {
         if (key == root->data) {
             return true;
-        } else if (key < root->data) {
+        }
+        else if (key < root->data) {
             root = root->left;
-        } else {
+        }
+        else {
             root = root->right;
         }
     }
@@ -107,8 +114,9 @@ bool Search(Node* root, int key) {
 }
 
 // Нахождение узла с минимальным значением
-Node* MinValueNode(Node* node) {
-    Node* current = node;
+
+AVLNode* MinValueAVLNode(AVLNode* root) {
+    AVLNode* current = root;
     while (current && current->left) {
         current = current->left;
     }
@@ -116,70 +124,82 @@ Node* MinValueNode(Node* node) {
 }
 
 // Удаление узла
-void DeleteNode(Node*& root, int key) {
+void DeleteAVLNode(AVLNode*& root, int key) {
     if (!root) return;
 
     if (key < root->data) {
-        DeleteNode(root->left, key);
-    } else if (key > root->data) {
-        DeleteNode(root->right, key);
-    } else {
+        DeleteAVLNode(root->left, key);
+    }
+    else if (key > root->data) {
+        DeleteAVLNode(root->right, key);
+    }
+    else {
+        // Удаление узла
         if (!root->left || !root->right) {
-            Node* temp = root->left ? root->left : root->right;
+            AVLNode* temp = root->left ? root->left : root->right;
             if (!temp) {
                 temp = root;
                 root = nullptr;
-            } else {
+            }
+            else {
                 *root = *temp;
             }
             delete temp;
-        } else {
-            Node* temp = MinValueNode(root->right);
+        }
+        else {
+            AVLNode* temp = MinValueAVLNode(root->right);
             root->data = temp->data;
-            DeleteNode(root->right, temp->data);
+            DeleteAVLNode(root->right, temp->data);
         }
     }
 
     if (!root) return;
 
-    SetBalance(root);
+    SetBalanceAVL(root);
 
     // Балансировка
     if (root->balance > 1) {
-        if (root->left->balance >= 0) {
-            TurnRight(root); // LL
-        } else {
-            TurnLeft(root->left); // LR
-            TurnRight(root);
+        if (root->left) { // Проверка на nullptr
+            if (root->left->balance >= 0) {
+                TurnRightAVL(root); // LL
+            }
+            else {
+                TurnLeftAVL(root->left); // LR
+                TurnRightAVL(root);
+            }
         }
     }
 
     if (root->balance < -1) {
-        if (root->right->balance <= 0) {
-            TurnLeft(root); // RR
-        } else {
-            TurnRight(root->right); // RL
-            TurnLeft(root);
+        if (root->right) { // Проверка на nullptr
+            if (root->right->balance <= 0) {
+                TurnLeftAVL(root); // RR
+            }
+            else {
+                TurnRightAVL(root->right); // RL
+                TurnLeftAVL(root);
+            }
         }
     }
 }
 
+
 // Симметричный обход дерева
-void InOrder(Node* root) {
+void InOrderAVL(AVLNode* root) {
     if (root) {
-        InOrder(root->left);
+        InOrderAVL(root->left);
         cout << root->data << " ";
-        InOrder(root->right);
+        InOrderAVL(root->right);
     }
 }
 
 // Вывод дерева в виде структуры
-void PrintTree(Node* root, int space = 0) {
+void PrintTreeAVL(AVLNode* root, int space = 0) {
     if (root == nullptr) return;
 
     space += 10;
 
-    PrintTree(root->right, space);
+    PrintTreeAVL(root->right, space);
 
     cout << endl;
     for (int i = 10; i < space; i++) {
@@ -187,33 +207,34 @@ void PrintTree(Node* root, int space = 0) {
     }
     cout << root->data << "\n";
 
-    PrintTree(root->left, space);
+    PrintTreeAVL(root->left, space);
 }
 
-int main() {
-    Node* root = nullptr;
-
-    Insert(root, 10);
-    Insert(root, 20);
-    Insert(root, 30);
-    Insert(root, 40);
-    Insert(root, 50);
-    Insert(root, 25);
-
-    cout << "Inorder traversal of the AVL tree is: ";
-    InOrder(root);
-    cout << endl;
-
-    cout << "Tree structure:\n";
-    PrintTree(root);
-
-    cout << "Deleting 10\n";
-    DeleteNode(root, 10);
-    cout << "Tree structure after deletion of 10:\n";
-    PrintTree(root);
-    
-    cout << "Searching for 30: " << (Search(root, 30) ? "Found" : "Not Found") << endl;
-    cout << "Searching for 100: " << (Search(root, 100) ? "Found" : "Not Found") << endl;
-
-    return 0;
+// Функция для записи дерева в файл
+void writeToFileAVL(AVLNode* root, ofstream& file) {
+    if (root) {
+        writeToFileAVL(root->left, file);
+        file << root->data << endl;
+        writeToFileAVL(root->right, file);
+    }
 }
+
+// Функция для чтения дерева из файла
+void readFromFileAVL(AVLNode*& root, ifstream& file) {
+    int value;
+    while (file >> value) {
+        InsertAVL(root, value);
+    }
+}
+
+// Функция для очистки дерева
+void clearAVL(AVLNode*& root) {
+    if (root) {
+        clearAVL(root->left);
+        clearAVL(root->right);
+        delete root;
+        root = nullptr;
+    }
+}
+
+
