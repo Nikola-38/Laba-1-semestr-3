@@ -125,6 +125,36 @@ void printArray(ArrayNode* head) {
     cout << endl;
 }
 
+void insertArray(ArrayNode*& head, int index, int value) {
+    if (index < 0 || index > sizeArray(head)) {
+        cout << "Некорректный индекс.\n";
+        return;
+    }
+
+    ArrayNode* newNode = new ArrayNode;
+    newNode->data = value;
+
+    if (index == 0) {
+        newNode->next = head;
+        newNode->previous = nullptr;
+        if (head) {
+            head->previous = newNode;
+        }
+        head = newNode;
+    } else {
+        ArrayNode* temp = head;
+        for (int i = 0; i < index - 1; i++) {
+            temp = temp->next;
+        }
+        newNode->next = temp->next;
+        newNode->previous = temp;
+        if (temp->next) {
+            temp->next->previous = newNode;
+        }
+        temp->next = newNode;
+    }
+}
+
 void clearArray(ArrayNode*& head) {
     while (head) {
         ArrayNode* temp = head;
