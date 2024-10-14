@@ -1,41 +1,43 @@
 #include <iostream>
-#include "windows.h"
-
+#include <fstream>
+#include <string>
 using namespace std;
 
-struct Node {
+struct NodeQ {
     int data;
-    Node* next;
+    NodeQ* next;
 };
 
 struct Queue {
-    Node* head;
-    Node* tail;
+    NodeQ* head;
+    NodeQ* tail;
+
+    Queue() : head(nullptr), tail(nullptr) {}
 };
 
 // Добавление элемента в очередь (push)
-void push(Queue& queue, int value) {
-    Node* newNode = new Node;
-    newNode->data = value;
-    newNode->next = nullptr;
+void pushQ(Queue& queue, int value) {
+    NodeQ* newNodeQ = new NodeQ;
+    newNodeQ->data = value;
+    newNodeQ->next = nullptr;
 
     if (!queue.tail) { // Если очередь пустая
-        queue.head = newNode;
-        queue.tail = newNode;
+        queue.head = newNodeQ;
+        queue.tail = newNodeQ;
     } else {
-        queue.tail->next = newNode; // Добавляем новый узел в конец
-        queue.tail = newNode; // Обновляем указатель на хвост
+        queue.tail->next = newNodeQ; // Добавляем новый узел в конец
+        queue.tail = newNodeQ; // Обновляем указатель на хвост
     }
 }
 
 // Удаление элемента из очереди (pop)
-int pop(Queue& queue) {
+int popQ(Queue& queue) {
     if (!queue.head) {
         cout << "Очередь пуста!" << endl;
         return -1; // Возвращаем -1, если очередь пуста
     }
 
-    Node* temp = queue.head;
+    NodeQ* temp = queue.head;
     int value = temp->data;
     queue.head = queue.head->next; // Убираем элемент с головы
 
@@ -49,7 +51,7 @@ int pop(Queue& queue) {
 
 // Чтение (вывод всех элементов очереди)
 void printQueue(const Queue& queue) {
-    Node* current = queue.head;
+    NodeQ* current = queue.head;
     while (current) {
         cout << current->data << " ";
         current = current->next;
@@ -60,30 +62,48 @@ void printQueue(const Queue& queue) {
 // Освобождение памяти
 void clearQueue(Queue& queue) {
     while (queue.head) {
-        pop(queue);
+        popQ(queue);
     }
 }
 
-int main() {
-    system("chcp 65001");
-    Queue queue;
-    queue.head = nullptr; // Инициализация указателей
-    queue.tail = nullptr;
-
-    // Добавление элементов
-    push(queue, 10);
-    push(queue, 20);
-    push(queue, 30);
-
-    cout << "Очередь: ";
-    printQueue(queue); 
-
-    // Удаление элементов
-    cout << "Удаленный элемент: " << pop(queue) << endl; 
-    cout << "Очередь после удаления: ";
-    printQueue(queue); 
-
-    // Освобождение памяти
-    clearQueue(queue);
-    return 0;
+// Функция для записи очереди в файл
+void writeToFileQ(const Queue& queue, const string& filename) {
+    ofstream file(filename);
+    if (!file) {
+        cout << "Не удалось открыть файл для записи.\n";
+        return;
+    }
+    NodeQ* temp = queue.head;
+    while (temp) {
+        file << temp->data << endl;
+        temp = temp->next;
+    }
+    cout << "Данные успешно записаны в файл.\n";
+    file.close();
 }
+
+// Функция для чтения очереди из файла (не используется в вашем коде, но оставлю для возможного использования)
+void readFromFileQ(Queue& queue, const string& filename) {
+    ifstream file(filename);
+    if (!file) {
+        cout << "Не удалось открыть файл для чтения.\n";
+        return;
+    }
+
+    clearQueue(queue); // Очищаем очередь перед загрузкой новых данных
+
+    int value;
+    int count = 0;  // Счетчик прочитанных значений
+    while (file >> value) {
+        pushQ(queue, value); // Используем push для добавления значений
+        count++;
+    }
+    if (count > 0) {
+        cout << count << " значений успешно прочитано из файла.\n";
+    } else {
+        cout << "Файл пуст или данные неверны.\n";
+    }
+    file.close();
+}
+
+
