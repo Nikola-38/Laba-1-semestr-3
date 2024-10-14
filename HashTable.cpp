@@ -1,17 +1,17 @@
 #include <iostream>
+#include <fstream>
+#include <iomanip>
+#include "Hash.h"
 
-using namespace std;
-
-// Структура для хранения ключа и значения
-struct Node {
-    string key;
-    string value;
-    Node* next; // Указатель на следующий элемент в цепочке
-};
-
+// Конструктор
+Hash::Hash() {
+    for (int i = 0; i < tableSize; i++) {
+        table[i] = nullptr; // Инициализируем массив нулями
+    }
+}
 
 // Хеш-функция
-int hashFunction(const string& key) {
+int Hash::hashFunction(const string& key) {
     int hash = 0;
     for (char ch : key) {
         hash += ch; // Суммируем ASCII значения символов
@@ -19,9 +19,9 @@ int hashFunction(const string& key) {
     return hash % tableSize; // Возвращаем индекс в пределах размера таблицы
 }
 
-    // Добавление элемента
-void insert(Node* table[], int tableSize, const string& key, const string& value) {
-    int index = hashFunction(key, tableSize);
+// Добавление элемента
+void Hash::insertH(const string& key, const string& value) {
+    int index = hashFunction(key);
     Node* newNode = new Node{key, value, nullptr};
 
     if (!table[index]) {
@@ -44,8 +44,8 @@ void insert(Node* table[], int tableSize, const string& key, const string& value
 }
 
 // Получение значения по ключу
-string get(Node* table[], int tableSize, const string& key) {
-    int index = hashFunction(key, tableSize);
+string Hash::getH(const string& key) {
+    int index = hashFunction(key);
     Node* current = table[index];
     while (current) {
         if (current->key == key) {
@@ -57,8 +57,8 @@ string get(Node* table[], int tableSize, const string& key) {
 }
 
 // Удаление элемента по ключу
-void remove(Node* table[], int tableSize, const string& key) {
-    int index = hashFunction(key, tableSize);
+void Hash::removeH(const string& key) {
+    int index = hashFunction(key);
     Node* current = table[index];
     Node* previous = nullptr;
 
@@ -79,10 +79,9 @@ void remove(Node* table[], int tableSize, const string& key) {
 }
 
 // Вывод всех элементов хеш-таблицы
-void printTable(Node* table[], int tableSize) {
+void Hash::printTableH() {
     for (int i = 0; i < tableSize; i++) {
         if (table[i]) {
-            cout << "Индекс " << i << ": ";
             Node* current = table[i];
             while (current) {
                 cout << "{" << current->key << ": " << current->value << "} ";
@@ -93,8 +92,47 @@ void printTable(Node* table[], int tableSize) {
     }
 }
 
-// Освобождение памяти вручную (если требуется)
-void clear(Node* table[], int tableSize) {
+// Запись хеш-таблицы в файл
+void Hash::writeToFileH(const string& filename) {
+    ofstream file(filename);
+    if (!file) {
+        cout << "Не удалось открыть файл для записи." << endl;
+        return;
+    }
+
+    for (int i = 0; i < tableSize; i++) {
+        Node* current = table[i];
+        while (current) {
+            file << current->key << " " << current->value << endl;
+            current = current->next;
+        }
+    }
+
+    cout << "Данные успешно записаны в файл." << endl;
+    file.close();
+}
+
+// Чтение хеш-таблицы из файла
+void Hash::readFromFileH(const string& filename) {
+    ifstream file(filename);
+    if (!file) {
+        cout << "Не удалось открыть файл для чтения." << endl;
+        return;
+    }
+
+    clearH(); // Очищаем таблицу перед загрузкой новых данных
+
+    string key, value;
+    while (file >> key >> value) {
+        insertH(key, value);
+    }
+
+    cout << "Данные успешно прочитаны из файла." << endl;
+    file.close();
+}
+
+// Освобождение памяти вручную
+void Hash::clearH() {
     for (int i = 0; i < tableSize; i++) {
         Node* current = table[i];
         while (current) {
@@ -104,32 +142,4 @@ void clear(Node* table[], int tableSize) {
         }
         table[i] = nullptr; // Обнуляем указатели
     }
-}
-};
-
-int main() {
-    const int tableSize = 10;
-    Node* hashTable[tableSize] = { nullptr }; // Инициализация хеш-таблицы
-
- // Пример использования хеш-таблицы
-    insert(hashTable, tableSize, "apple", "fruit");
-    insert(hashTable, tableSize, "carrot", "vegetable");
-    insert(hashTable, tableSize, "banana", "fruit");
-    insert(hashTable, tableSize, "broccoli", "vegetable");
-    insert(hashTable, tableSize, "apple", "green fruit"); // Обновление значения
-
-    cout << "Получение значения по ключу 'apple': " << get(hashTable, tableSize, "apple") << endl; // Ожидается: green fruit
-    cout << "Получение значения по ключу 'carrot': " << get(hashTable, tableSize, "carrot") << endl; // Ожидается: vegetable
-
-    cout << "Содержимое хеш-таблицы:" << endl;
-    printTable(hashTable, tableSize);
-
-    remove(hashTable, tableSize, "banana");
-    cout << "Содержимое хеш-таблицы после удаления 'banana':" << endl;
-    printTable(hashTable, tableSize);
-
-    // Освобождение памяти вручную
-    clear(hashTable, tableSize);
-
-    return 0;
 }
