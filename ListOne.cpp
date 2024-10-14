@@ -1,54 +1,55 @@
 #include <iostream>
-#include "windows.h"
+#include <fstream>
+#include <string>
 using namespace std;
 
-struct Node {
+struct NodeLO {
     int data;
-    Node* next;
+    NodeLO* next;
 };
 
 // Добавление элемента в голову списка
-void addHead(Node*& head, int value) {
-    Node* newNode = new Node;
-    newNode->data = value;
-    newNode->next = head;
-    head = newNode;
+void addHeadLO(NodeLO*& head, int value) {
+    NodeLO* newNodeLO = new NodeLO;
+    newNodeLO->data = value;
+    newNodeLO->next = head;
+    head = newNodeLO;
 }
 
 // Добавление элемента в хвост списка
-void addTail(Node*& head, int value) {
-    Node* newNode = new Node;
-    newNode->data = value;
-    newNode->next = nullptr;
+void addTailLO(NodeLO*& head, int value) {
+    NodeLO* newNodeLO = new NodeLO;
+    newNodeLO->data = value;
+    newNodeLO->next = nullptr;
 
     if (!head) {
-        head = newNode;
+        head = newNodeLO;
     } else {
-        Node* temp = head;
+        NodeLO* temp = head;
         while (temp->next) {
             temp = temp->next;
         }
-        temp->next = newNode;
+        temp->next = newNodeLO;
     }
 }
 
 // Удаление элемента с головы списка
-void deleteHead(Node*& head) {
+void deleteHeadLO(NodeLO*& head) {
     if (!head) return;
-    Node* temp = head;
+    NodeLO* temp = head;
     head = head->next;
     delete temp;
 }
 
 // Удаление элемента с хвоста списка
-void deleteTail(Node*& head) {
+void deleteTailLO(NodeLO*& head) {
     if (!head) return;
     if (!head->next) {
         delete head;
         head = nullptr;
         return;
     }
-    Node* temp = head;
+    NodeLO* temp = head;
     while (temp->next->next) {
         temp = temp->next;
     }
@@ -57,26 +58,35 @@ void deleteTail(Node*& head) {
 }
 
 // Удаление элемента по значению
-void deleteByValue(Node*& head, int value) {
-    if (!head) return;
-    if (head->data == value) {
-        deleteHead(head);
-        return;
+    bool deleteByValueLO(NodeLO*& head, int value) {
+        if (!head) return false; // Если список пуст, вернуть false
+
+        // Проверка, нужно ли удалить голову
+        if (head->data == value) {
+            deleteHeadLO(head); // Предполагается, что deleteHeadLO уже обрабатывает голову
+            return true; // Удаление успешно
+        }
+
+        NodeLO* current = head;
+        while (current->next && current->next->data != value) {
+            current = current->next;
+        }
+
+        // Если значение найдено, удалить узел
+        if (current->next) {
+            NodeLO* temp = current->next;
+            current->next = current->next->next;
+            delete temp; // Освобождаем память
+            return true; // Удаление успешно
+        }
+
+        return false; // Значение не найдено
     }
-    Node* current = head;
-    while (current->next && current->next->data != value) {
-        current = current->next;
-    }
-    if (current->next) {
-        Node* temp = current->next;
-        current->next = current->next->next;
-        delete temp;
-    }
-}
+
 
 // Поиск элемента по значению
-Node* search(Node* head, int value) {
-    Node* current = head;
+NodeLO* searchLO(NodeLO* head, int value) {
+    NodeLO* current = head;
     while (current) {
         if (current->data == value) {
             return current;
@@ -87,7 +97,7 @@ Node* search(Node* head, int value) {
 }
 
 // Печать списка
-void printList(Node* head) {
+void printListLO(NodeLO* head) {
     while (head) {
         cout << head->data << " ";
         head = head->next;
@@ -96,47 +106,50 @@ void printList(Node* head) {
 }
 
 // Освобождение памяти
-void clearList(Node*& head) {
+void clearListLO(NodeLO*& head) {
     while (head) {
-        deleteHead(head);
+        deleteHeadLO(head);
     }
 }
 
-int main() {
-    system("chcp 65001");
-    Node* forwardList = nullptr;
+// Функция для записи списка в файл
+void writeToFileLO(NodeLO* head, const string& filename) {
+    ofstream file(filename);
+    if (!file) {
+        cout << "Не удалось открыть файл для записи.\n";
+        return;
+    }
+    NodeLO* temp = head;
+    while (temp) {
+        file << temp->data << endl;
+        temp = temp->next;
+    }
+    cout << "Данные успешно записаны в файл.\n";
+    file.close();
+}
 
-    // Добавление элементов
-    addHead(forwardList, 3);
-    addHead(forwardList, 2);
-    addTail(forwardList, 4);
-    addTail(forwardList, 5);
+// Функция для чтения списка из файла
+void readFromFileLO(NodeLO*& head, const string& filename) {
+    ifstream file(filename);
+    if (!file) {
+        cout << "Не удалось открыть файл для чтения.\n";
+        return;
+    }
 
-    cout << "Список: ";
-    printList(forwardList);
+    clearListLO(head); // Очищаем список перед загрузкой новых данных
 
-    // Удаление элементов
-    deleteHead(forwardList);
-    cout << "После удаления головы: ";
-    printList(forwardList); 
-
-    deleteTail(forwardList);
-    cout << "После удаления хвоста: ";
-    printList(forwardList); 
-
-    deleteByValue(forwardList, 3);
-    cout << "После удаления элемента со значением 3: ";
-    printList(forwardList); 
-
-    // Поиск элемента
-    Node* found = search(forwardList, 4);
-    if (found) {
-        cout << "Элемент найден: " << found->data << endl; 
+    int value;
+    int count = 0;  // Счетчик прочитанных значений
+    while (file >> value) {
+        addTailLO(head, value);
+        count++;
+    }
+    if (count > 0) {
+        cout << count << " значений успешно прочитано из файла.\n";
     } else {
-        cout << "Элемент не найден" << endl;
+        cout << "Файл пуст или данные неверны.\n";
     }
-
-    // Освобождение памяти
-    clearList(forwardList);
-    return 0;
+    file.close();
 }
+
+
