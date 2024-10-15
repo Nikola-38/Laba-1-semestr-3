@@ -19,6 +19,7 @@ AVLNode* MinValueAVLNode(AVLNode* AVLNode);
 void DeleteAVLNode(AVLNode*& root, int key);
 void InOrderAVL(AVLNode* root);
 void PrintTreeAVL(AVLNode* root, int space = 0);
+void writeNodeToFile(AVLNode* node, ofstream& file, int depth);
 void writeToFileAVL(AVLNode* root, ofstream& file);
 void readFromFileAVL(AVLNode*& root, ifstream& file);
 void clearAVL(AVLNode*& root);
