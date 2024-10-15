@@ -108,7 +108,6 @@ void Hash::writeToFileH(const string& filename) {
         }
     }
 
-    cout << "Данные успешно записаны в файл." << endl;
     file.close();
 }
 
@@ -127,7 +126,6 @@ void Hash::readFromFileH(const string& filename) {
         insertH(key, value);
     }
 
-    cout << "Данные успешно прочитаны из файла." << endl;
     file.close();
 }
 
