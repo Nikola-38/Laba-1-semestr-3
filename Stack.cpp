@@ -72,8 +72,8 @@ void writeToFileS(const Stack& stack, const string& filename) {
         file << temp->data << endl;
         temp = temp->next;
     }
-    cout << "Данные успешно записаны в файл.\n";
     file.close();
 }
+
 
 
