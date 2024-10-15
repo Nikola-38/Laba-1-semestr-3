@@ -112,7 +112,7 @@ void clearListLO(NodeLO*& head) {
     }
 }
 
-// Функция для записи списка в файл
+/// Функция для записи списка в файл
 void writeToFileLO(NodeLO* head, const string& filename) {
     ofstream file(filename);
     if (!file) {
@@ -124,7 +124,6 @@ void writeToFileLO(NodeLO* head, const string& filename) {
         file << temp->data << endl;
         temp = temp->next;
     }
-    cout << "Данные успешно записаны в файл.\n";
     file.close();
 }
 
@@ -145,8 +144,9 @@ void readFromFileLO(NodeLO*& head, const string& filename) {
         count++;
     }
     if (count > 0) {
-        cout << count << " значений успешно прочитано из файла.\n";
-    } else {
+        cout << count;
+    }
+    else {
         cout << "Файл пуст или данные неверны.\n";
     }
     file.close();
