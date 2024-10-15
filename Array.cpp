@@ -171,7 +171,6 @@ void writeToFileArray(ArrayNode* head, const string& filename) {
         file << temp->data << endl;
         temp = temp->next;
     }
-    cout << "Данные успешно записаны в файл.\n";
     file.close();
 }
 
@@ -191,7 +190,7 @@ void readFromFileArray(ArrayNode*& head, const string& filename) {
         count++;
     }
     if (count > 0) {
-        cout << count << " значений успешно прочитано из файла.\n";
+        cout << count;
     }
     else {
         cout << "Файл пуст или данные неверны.\n";
