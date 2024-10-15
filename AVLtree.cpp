@@ -210,13 +210,36 @@ void PrintTreeAVL(AVLNode* root, int space = 0) {
     PrintTreeAVL(root->left, space);
 }
 
-// Функция для записи дерева в файл
-void writeToFileAVL(AVLNode* root, ofstream& file) {
-    if (root) {
-        writeToFileAVL(root->left, file);
-        file << root->data << endl;
-        writeToFileAVL(root->right, file);
+void writeNodeToFile(AVLNode* node, ofstream& file, int depth) {
+    if (!node) return; // Если узел пуст, просто возвращаем
+
+    // Записываем правый узел (если он есть)
+    writeNodeToFile(node->right, file, depth + 1);
+
+    // Записываем текущий узел с отступами
+    for (int i = 0; i < depth; i++) {
+        file << "    "; // Отступы для визуализации уровня
     }
+    file << node->data << endl; // Записываем значение узла
+
+    // Записываем левый узел (если он есть)
+    writeNodeToFile(node->left, file, depth + 1);
+}
+
+// Функция для записи всего дерева в файл
+void writeToFileAVL(AVLNode* root, ofstream& file) {
+    if (!file) {
+        cout << "Не удалось открыть файл для записи.\n";
+        return;
+    }
+    
+    // Если дерево пусто, можно записать соответствующее сообщение
+    if (!root) {
+        file << "Дерево пусто." << endl;
+        return;
+    }
+
+    writeNodeToFile(root, file, 0); // Начинаем запись с корня
 }
 
 // Функция для чтения дерева из файла
