@@ -1,6 +1,5 @@
 #include <iostream>
 #include <fstream>
-#include <sstream>
 #include <iomanip>
 #include <windows.h>
 #include "array.h"
@@ -13,310 +12,382 @@
 
 using namespace std;
 
-void handleArrayCommands(ArrayNode*& arr, const string& fileName, const string& query) {
-    istringstream iss(query);
+void handleArrayCommands(ArrayNode*& arr) {
+
     string command;
-    iss >> command;
+    while (true) {
+        cout << ">> ";
+        cin >> command;
 
-    ofstream outFile(fileName, ios::app); // Открываем файл в режиме добавления
-
-    if (command == "APPEND") {
-        int value;
-        iss >> value;
-        if (!containsArray(arr, value)) {
-            appendArray(arr, value);
-            writeToFileArray(arr, outFile);
-            cout << "Элемент " << value << " добавлен.\n";
-        } else {
-            cout << "Элемент уже существует.\n";
+        if (command == "APPEND") {
+            int value;
+            cin >> value;
+            if (!containsArray(arr, value)) {
+                appendArray(arr, value);
+                writeToFileArray(arr, "ARRAY.txt");
+            }
         }
-    } else if (command == "AINSERT") {
-        int index, value;
-        iss >> index >> value;
-        if (index >= 0 && index <= sizeArray(arr)) { // Исправлено: индекс может быть равен размеру
-            insertArray(arr, index, value);
-            writeToFileArray(arr, outFile);
-            cout << "Элемент " << value << " вставлен на индекс " << index << ".\n";
-        } else {
-            cout << "Некорректный индекс.\n";
+        else if (command == "AINSERT") {
+            int index, value;
+            cin >> index >> value;
+            if (index >= 0 && index <= sizeArray(arr)) {
+                insertArray(arr, index, value);  // Исправлено на insertArray
+                writeToFileArray(arr, "ARRAY.txt");
+            }
         }
-    } else if (command == "AREMOVE") {
-        int index;
-        iss >> index;
-        if (index >= 0 && index < sizeArray(arr)) {
-            removeArray(arr, index);
-            writeToFileArray(arr, outFile);
-            cout << "Элемент на индексе " << index << " удален.\n";
-        } else {
-            cout << "Некорректный индекс.\n";
+        else if (command == "AGET") {
+            int index;
+            cin >> index;
+            if (index >= 0 && index < sizeArray(arr)) {
+                cout << "Элемент по индексу " << index << ": " << getArray(arr, index) << endl;
+            }
         }
-    } else if (command == "AREPLACE") {
-        int index, value;
-        iss >> index >> value;
-        if (index >= 0 && index < sizeArray(arr)) {
-            replaceArray(arr, index, value);
-            writeToFileArray(arr, outFile);
-            cout << "Элемент на индексе " << index << " заменен на " << value << ".\n";
-        } else {
-            cout << "Некорректный индекс.\n";
+        else if (command == "AREMOVE") {
+            int index;
+            cin >> index;
+            if (index >= 0 && index < sizeArray(arr)) {
+                removeArray(arr, index);
+                writeToFileArray(arr, "ARRAY.txt");
+            }
         }
-    } else {
-        cout << "Неизвестная команда. Пожалуйста, попробуйте снова.\n";
+        else if (command == "AREPLACE") {
+            int index, value;
+            cin >> index >> value;
+            if (index >= 0 && index < sizeArray(arr)) {
+                replaceArray(arr, index, value);
+                writeToFileArray(arr, "ARRAY.txt");
+            }
+        }
+        else if (command == "ASIZE") {
+            cout << "Длина списка: " << sizeArray(arr) << endl;
+        }
+        else if (command == "PRINT") {
+            printArray(arr);
+        }
+        else if (command == "EXIT") {
+            break;
+        }
+        else {
+            cout << "Неизвестная команда.\n";
+        }
     }
-
-    outFile.close(); // Закрываем файл
-}
-
-void handleAVLCommands(AVLNode*& root, const string& fileName, const string& query) {
-    istringstream iss(query);
-    string command;
-    iss >> command;
-
-    ofstream outFile(fileName, ios::app); // Открываем файл для добавления
-
-    if (command == "AVLINSERT") {
-        int value;
-        iss >> value;
-        InsertAVL(root, value);
-        writeToFileAVL(root, outFile); // Записываем дерево в файл
-        cout << "Элемент " << value << " вставлен.\n";
-    } else if (command == "AVLDEL") {
-        int value;
-        iss >> value;
-        DeleteAVLNode(root, value);
-        writeToFileAVL(root, outFile); // Записываем дерево в файл
-        cout << "Элемент " << value << " удален.\n";
-    } else if (command == "AVLSEARCH") {
-        int value;
-        iss >> value;
-        cout << (SearchAVL(root, value) ? "Значение найдено." : "Значение не найдено.") << endl;
-    } else if (command == "AVLHEIGHT") {
-        cout << "Высота дерева: " << HeightAVL(root) << endl;
-    } else if (command == "AVLMIN") {
-        AVLNode* minNode = MinValueAVLNode(root);
-        cout << (minNode ? "Минимальное значение: " + to_string(minNode->data) : "Дерево пусто.") << endl;
-    } else if (command == "PRINT") {
-        PrintTreeAVL(root);
-    } else {
-        cout << "Неизвестная команда.\n";
-    }
-
-    outFile.close(); // Закрываем файл
 }
 
 
-void handleHashCommands(Hash& hashTable, const string& fileName, const string& query) {
-    istringstream iss(query);
+void handleAVLCommands(AVLNode*& root) {
+
     string command;
-    iss >> command;
+    while (true) {
+        cout << ">> ";
+        cin >> command;
 
-    ofstream outFile(fileName, ios::app); // Open the file in append mode
-
-    if (command == "HINSERT") {
-        string key, value;
-        iss >> key >> value;
-        hashTable.insertH(key, value);
-        hashTable.writeToFileH(outFile); // Write immediately
-    } else if (command == "HGET") {
-        string key;
-        iss >> key;
-        string result = hashTable.getH(key);
-        cout << (!result.empty() ? "Значение: " + result : "Значение не найдено.") << endl;
-    } else if (command == "HREMOVE") {
-        string key;
-        iss >> key;
-        hashTable.removeH(key);
-        hashTable.writeToFileH(outFile); // Write immediately
-    } else if (command == "HPRINT") {
-        hashTable.printTableH();
-    } else {
-        cout << "Неизвестная команда.\n";
+        if (command == "AVLINSERT") {
+            int value;
+            cin >> value;
+            InsertAVL(root, value);
+            ofstream outFile("AVL.txt", ios::trunc);
+            writeToFileAVL(root, outFile);
+            outFile.close();
+        }
+        else if (command == "AVLDEL") {
+            int value;
+            cin >> value;
+            DeleteAVLNode(root, value);
+            ofstream outFile("AVL.txt", ios::trunc);
+            writeToFileAVL(root, outFile);
+            outFile.close();
+        }
+        else if (command == "AVLSEARCH") {
+            int value;
+            cin >> value;
+            if (SearchAVL(root, value)) {
+                cout << "Значение " << value << " найдено." << endl;
+            }
+            else {
+                cout << "Значение " << value << " не найдено." << endl;
+            }
+        }
+        else if (command == "AVLHEIGHT") {
+            cout << "Высота дерева: " << HeightAVL(root) << endl;
+        }
+        else if (command == "AVLMIN") {
+            AVLNode* minNode = MinValueAVLNode(root);
+            if (minNode) {
+                cout << "Минимальное значение: " << minNode->data << endl;
+            }
+            else {
+                cout << "Дерево пусто." << endl;
+            }
+        }
+        else if (command == "PRINT") {
+            cout << "Дерево:" << endl;
+            PrintTreeAVL(root);
+        }
+        else if (command == "EXIT") {
+            break;
+        }
+        else {
+            cout << "Неизвестная команда.\n";
+        }
     }
-
-    outFile.close(); // Close the file
 }
 
-void handleListONECommands(NodeLO*& list, const string& fileName, const string& query) {
-    istringstream iss(query);
+void handleHashCommands(Hash& hashTable) {
+
     string command;
-    iss >> command;
+    while (true) {
+         cout << ">> ";
+        cin >> command;
 
-    ofstream outFile(fileName, ios::app); // Open the file in append mode
+        if (command == "HINSERT") {
+            string key, value;
 
-    if (command == "LOADDHEAD") {
-        int value;
-        iss >> value;
-        addHeadLO(list, value);
-        writeToFileLO(list, outFile); // Write immediately
-    } else if (command == "LOADDTAIL") {
-        int value;
-        iss >> value;
-        addTailLO(list, value);
-        writeToFileLO(list, outFile); // Write immediately
-    } else if (command == "LODELHEAD") {
-        if (list) {
-            deleteHeadLO(list);
-            writeToFileLO(list, outFile); // Write immediately
-        } else {
-            cout << "Список пуст." << endl;
+            cin >> key;
+            cin >> value;
+            hashTable.insertH(key, value);
+            hashTable.writeToFileH("Hash.txt");
         }
-    } else if (command == "LODELTAIL") {
-        if (list) {
-            deleteTailLO(list);
-            writeToFileLO(list, outFile); // Write immediately
-        } else {
-            cout << "Список пуст." << endl;
+        else if (command == "HGET") {
+            string key;
+
+            cin >> key;
+            string result = hashTable.getH(key);
+            if (!result.empty()) {
+                cout << "Значение: " << result << endl;
+            }
+            else {
+                cout << "Значение не найдено." << endl;
+            }
         }
-    } else if (command == "LODELVAL") {
-        int value;
-        iss >> value;
-        if (deleteByValueLO(list, value)) {
-            writeToFileLO(list, outFile); // Write immediately
-        } else {
-            cout << "Значение не найдено." << endl;
+        else if (command == "HREMOVE") {
+            string key;
+            cin >> key;
+            hashTable.removeH(key);
+            hashTable.writeToFileH("Hash.txt");
         }
-    } else if (command == "LOSEARCH") {
-        int value;
-        iss >> value;
-        cout << (searchLO(list, value) ? "Значение найдено." : "Значение не найдено.") << endl;
-    } else if (command == "LOPRINT") {
-        printListLO(list);
-    } else {
-        cout << "Неизвестная команда.\n";
+        else if (command == "HPRINT") {
+            cout << "Хеш-таблица:" << endl;
+            hashTable.printTableH();
+        }
+        else if (command == "EXIT") {
+            break;
+        }
+        else {
+            cout << "Неизвестная команда.\n";
+        }
     }
-
-    outFile.close(); // Close the file
 }
 
-void handleListSECCommands(NodeLS*& list2, const string& fileName, const string& query) {
-    istringstream iss(query);
+void handleListONECommands(NodeLO*& list, const string& filename) {
     string command;
-    iss >> command;
+    while (true) {
+        cout << ">> ";
+        cin >> command;
 
-    ofstream outFile(fileName, ios::app); // Open the file in append mode
-
-    if (command == "LSADDHEAD") {
-        int value;
-        iss >> value;
-        addHeadLS(list2, value);
-        writeToFileLS(list2, outFile); // Write immediately
-    } else if (command == "LSADDTAIL") {
-        int value;
-        iss >> value;
-        addTailLS(list2, value);
-        writeToFileLS(list2, outFile); // Write immediately
-    } else if (command == "LSDELHEAD") {
-        if (list2) {
-            deleteHeadLS(list2);
-            writeToFileLS(list2, outFile); // Write immediately
-        } else {
-            cout << "Список пуст." << endl;
+        if (command == "LOADDHEAD") {
+            int value;
+            cin >> value;
+            addHeadLO(list, value);
+            writeToFileLO(list, filename);
         }
-    } else if (command == "LSDELTAIL") {
-        if (list2) {
-            deleteTailLS(list2);
-            writeToFileLS(list2, outFile); // Write immediately
-        } else {
-            cout << "Список пуст." << endl;
+        else if (command == "LOADDTAIL") {
+            int value;
+            cin >> value;
+            addTailLO(list, value);
+            writeToFileLO(list, filename);
         }
-    } else if (command == "LSDELVAL") {
-        int value;
-        iss >> value;
-        if (deleteByValueLS(list2, value)) {
-            writeToFileLS(list2, outFile); // Write immediately
-        } else {
-            cout << "Значение не найдено." << endl;
+        else if (command == "LODELHEAD") {
+            if (list) {
+                deleteHeadLO(list);
+                writeToFileLO(list, filename);
+            }
+            else {
+                cout << "Список пуст." << endl;
+            }
         }
-    } else if (command == "LSSEARCH") {
-        int value;
-        iss >> value;
-        cout << (searchLS(list2, value) ? "Значение найдено." : "Значение не найдено.") << endl;
-    } else if (command == "LSPRINT") {
-        printListLS(list2);
-    } else {
-        cout << "Неизвестная команда.\n";
+        else if (command == "LODELTAIL") {
+            if (list) {
+                deleteTailLO(list);
+                writeToFileLO(list, filename);
+            }
+            else {
+                cout << "Список пуст." << endl;
+            }
+        }
+        else if (command == "LODELVAL") {
+            int value;
+            cin >> value;
+            if (deleteByValueLO(list, value)) {
+                writeToFileLO(list, filename);
+            }
+            else {
+                cout << "Значение не найдено." << endl;
+            }
+        }
+        else if (command == "LOSEARCH") {
+            int value;
+            cin >> value;
+            if (searchLO(list, value)) {
+                cout << "Значение найдено." << endl;
+            }
+            else {
+                cout << "Значение не найдено." << endl;
+            }
+        }
+        else if (command == "LOPRINT") {
+            cout << "Список: ";
+            printListLO(list);
+        }
+        else if (command == "EXIT") {
+            break;
+        }
+        else {
+            cout << "Неизвестная команда.\n";
+        }
     }
-
-    outFile.close(); // Close the file
 }
 
-void handleStackCommands(Stack& stack, const string& fileName, const string& query) {
-    istringstream iss(query);
+void handleListSECCommands(NodeLS*& list2, const string& filename) {
     string command;
-    iss >> command;
+    while (true) {
+        cout << ">> ";
+        cin >> command;
 
-    ofstream outFile(fileName, ios::app); // Open the file in append mode
-
-    if (command == "SPUSH") {
-        string value;
-        iss >> value;
-        pushS(&stack, value);
-        writeToFileS(stack, outFile); // Write immediately
-    } else if (command == "SPOP") {
-        string value = popS(&stack);
-        if (!value.empty()) {
-            cout << "Удаленное значение: " << value << endl;
-            writeToFileS(stack, outFile); // Write immediately
-        } else {
-            cout << "Стек пуст." << endl;
+        if (command == "LSADDHEAD") {
+            int value;
+            cin >> value;
+            addHeadLS(list2, value);
+            writeToFileLS(list2, filename);
         }
-    } else if (command == "SPRINT") {
-        printStackS(&stack);
-    } else {
-        cout << "Неизвестная команда.\n";
+        else if (command == "LSADDTAIL") {
+            int value;
+            cin >> value;
+            addTailLS(list2, value);
+            writeToFileLS(list2, filename);
+        }
+        else if (command == "LSDELHEAD") {
+            if (list2) {
+                deleteHeadLS(list2);
+                writeToFileLS(list2, filename);
+            }
+            else {
+                cout << "Список пуст." << endl;
+            }
+        }
+        else if (command == "LSDELTAIL") {
+            if (list2) {
+                deleteTailLS(list2);
+                writeToFileLS(list2, filename);
+            }
+            else {
+                cout << "Список пуст." << endl;
+            }
+        }
+        else if (command == "LSDELVAL") {
+            int value;
+            cin >> value;
+            if (deleteByValueLS(list2, value)) {
+                writeToFileLS(list2, filename);
+            }
+            else {
+                cout << "Значение не найдено." << endl;
+            }
+        }
+        else if (command == "LSSEARCH") {
+            int value;
+            cin >> value;
+            if (searchLS(list2, value)) {
+                cout << "Значение найдено." << endl;
+            }
+            else {
+                cout << "Значение не найдено." << endl;
+            }
+        }
+        else if (command == "LSPRINT") {
+            cout << "Список: ";
+            printListLS(list2);
+        }
+        else if (command == "EXIT") {
+            break;
+        }
+        else {
+            cout << "Неизвестная команда.\n";
+        }
     }
-
-    outFile.close(); // Close the file
 }
 
-void handleQueueCommands(Queue& queue, const string& fileName, const string& query) {
-    istringstream iss(query);
+
+void handleStackCommands(Stack& stack) {
     string command;
-    iss >> command;
+    while (true) {
+        cout << ">> ";
+        cin >> command;
 
-    ofstream outFile(fileName, ios::app); // Open the file in append mode
-
-    if (command == "QPUSH") {
-        int value;
-        iss >> value;
-        pushQ(queue, value);
-        writeToFileQ(queue, outFile); // Write immediately
-    } else if (command == "QPOP") {
-        int value = popQ(queue);
-        if (value != -1) {
-            cout << "Удаленное значение: " << value << endl;
-            writeToFileQ(queue, outFile); // Write immediately
-        } else {
-            cout << "Очередь пуста." << endl;
+        if (command == "SPUSH") {
+            string value;
+            cin >> value;
+            pushS(&stack, value);
+            writeToFileS(stack, "STACK.txt");
         }
-    } else if (command == "QPRINT") {
-        printQueue(queue);
-    } else {
-        cout << "Неизвестная команда.\n";
+        else if (command == "SPOP") {
+            string value = popS(&stack);
+            if (!value.empty()) {
+                writeToFileS(stack, "STACK.txt");
+            }
+            else {
+                cout << "Стек пуст." << endl;
+            }
+        }
+        else if (command == "SPRINT") {
+            cout << "Стек: ";
+            printStackS(&stack);
+        }
+        else if (command == "EXIT") {
+            break;
+        }
+        else {
+            cout << "Неизвестная команда.\n";
+        }
     }
-
-    outFile.close(); // Close the file
 }
 
-int main(int argc, char* argv[]) {
+void handleQueueCommands(Queue& queue) {
+
+    string command;
+    while (true) {
+        cout << ">> ";
+        cin >> command;
+
+        if (command == "QPUSH") {
+            int value;
+            cin >> value;
+            pushQ(queue, value);
+            writeToFileQ(queue, "QUEUE.txt");
+        }
+        else if (command == "QPOP") {
+            int value = popQ(queue);
+            if (value != -1) {
+                writeToFileQ(queue, "QUEUE.txt");
+            }
+            else {
+                cout << "Очередь пуста." << endl;
+            }
+        }
+        else if (command == "QPRINT") {
+            cout << "Очередь: ";
+            printQueue(queue);
+        }
+        else if (command == "EXIT") {
+            break;
+        }
+        else {
+            cout << "Неизвестная команда.\n";
+        }
+    }
+}
+
+int main() {
     system("chcp 65001");
-
-    if (argc != 5) {
-        cout << "Использование: ./a.exe --file <filename> --query '<команда>'\n";
-        return 1;
-    }
-
-    string fileName;
-    string query;
-
-    for (int i = 1; i < argc; i++) {
-        if (string(argv[i]) == "--file") {
-            fileName = argv[++i];
-        } else if (string(argv[i]) == "--query") {
-            query = argv[++i];
-        }
-    }
-
     ArrayNode* arr = nullptr;
     AVLNode* root = nullptr;
     Hash hashTable;
@@ -325,22 +396,38 @@ int main(int argc, char* argv[]) {
     Queue queue;
     Stack stack;
 
-    if (query.substr(0, 5) == "ARRAY") {
-        handleArrayCommands(arr, fileName, query.substr(6));
-    } else if (query.substr(0, 3) == "AVL") {
-        handleAVLCommands(root, fileName, query.substr(4));
-    } else if (query.substr(0, 4) == "HASH") {
-        handleHashCommands(hashTable, fileName, query.substr(5));
-    } else if (query.substr(0, 2) == "LO") {
-        handleListONECommands(list, fileName, query.substr(3));
-    } else if (query.substr(0, 2) == "LS") {
-        handleListSECCommands(list2, fileName, query.substr(3));
-    } else if (query.substr(0, 6) == "QUEUE") {
-        handleQueueCommands(queue, fileName, query.substr(7));
-    } else if (query.substr(0, 5) == "STACK") {
-        handleStackCommands(stack, fileName, query.substr(6));
-    } else {
-        cout << "Неизвестная команда. Попробуйте снова." << endl;
+    while (true) {
+        string command;
+        cout << ">> ";
+        cin >> command;
+
+        if (command == "ARRAY") {
+            handleArrayCommands(arr);
+        }
+        else if (command == "AVL") {
+            handleAVLCommands(root);
+        }
+        else if (command == "HASH") {
+            handleHashCommands(hashTable);
+        }
+        else if (command == "LO") {
+            handleListONECommands(list, "LISTONE.txt");
+        }
+        else if (command == "LS") {
+            handleListSECCommands(list2, "LISTSEC.txt");
+        }
+        else if (command == "QUEUE") {
+            handleQueueCommands(queue);
+        }
+        else if (command == "STACK") {
+            handleStackCommands(stack);
+        }
+        else if (command == "EXIT") {
+            break;
+        }
+        else {
+            cout << "Неизвестная команда. Попробуйте снова." << endl;
+        }
     }
 
     // Очистка памяти
