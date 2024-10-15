@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+
 using namespace std;
 
 struct ArrayNode {
@@ -11,31 +12,23 @@ struct ArrayNode {
 // Функция для добавления элемента в конец списка
 void appendArray(ArrayNode*& head, int value) {
     ArrayNode* newNode = new ArrayNode;
-    if (!newNode) {
-        cout << "Ошибка выделения памяти\n";
-        return;
-    }
     newNode->data = value;
     newNode->next = nullptr;
     newNode->previous = nullptr;
 
     if (!head) {
-        head = newNode;
+        head = newNode; // Если список пуст, новый элемент становится первым
     } else {
-        ArrayNode* temp = head;
-        while (temp->next) {
-            temp = temp->next;
+        ArrayNode* current = head;
+        while (current->next) {
+            current = current->next; // Находим последний элемент
         }
-        temp->next = newNode;
-        newNode->previous = temp;
+        current->next = newNode; // Добавляем новый элемент в конец
+        newNode->previous = current; // Устанавливаем указатель на предыдущий элемент
     }
 }
 
 int getArray(ArrayNode* head, int index) {
-    if (index < 0) {
-        cout << "Индекс вне диапазона\n";
-        return -1;
-    }
     ArrayNode* temp = head;
     for (int i = 0; i < index; i++) {
         if (!temp) {
@@ -72,48 +65,39 @@ void removeArray(ArrayNode*& head, int index) {
         }
         delete temp;
     } else {
-        ArrayNode* prev = nullptr;
-
         for (int i = 0; i < index; i++) {
-            prev = temp;
-            temp = temp->next;
+            temp = temp->next; // Находим элемент по индексу
         }
-
-        if (prev) { // Проверяем, что prev не null
-            prev->next = temp->next;
-            if (temp->next) {
-                temp->next->previous = prev; // Обновляем указатель previous
-            }
+        if (temp->previous) {
+            temp->previous->next = temp->next; // Обновляем указатель следующего элемента
+        }
+        if (temp->next) {
+            temp->next->previous = temp->previous; // Обновляем указатель предыдущего элемента
         }
         delete temp;
     }
 }
 
-
 void replaceArray(ArrayNode* head, int index, int value) {
-    if (index < 0) {
+    if (!isValidIndex(head, index)) {
         cout << "Индекс вне диапазона\n";
         return;
     }
     ArrayNode* temp = head;
-    for (int i = 0; i < index && temp; i++) {
+    for (int i = 0; i < index; i++) {
         temp = temp->next;
-    }
-    if (!temp) {
-        cout << "Индекс вне диапазона\n";
-        return;
     }
     temp->data = value;
 }
 
 int sizeArray(ArrayNode* head) {
-    int count = 0;
+    int size = 0;
     ArrayNode* temp = head;
     while (temp) {
-        count++;
-        temp = temp->next;
+        size++;
+        temp = temp->next; 
     }
-    return count;
+    return size;
 }
 
 void printArray(ArrayNode* head) {
@@ -125,35 +109,48 @@ void printArray(ArrayNode* head) {
     cout << endl;
 }
 
+// Функция для вставки элемента по индексу
 void insertArray(ArrayNode*& head, int index, int value) {
-    if (index < 0 || index > sizeArray(head)) {
+    if (index < 0) {
         cout << "Некорректный индекс.\n";
         return;
     }
 
     ArrayNode* newNode = new ArrayNode;
     newNode->data = value;
+    newNode->next = nullptr;
+    newNode->previous = nullptr;
 
     if (index == 0) {
-        newNode->next = head;
-        newNode->previous = nullptr;
+        // Вставка в начало
+        newNode->next = head; // Новый элемент указывает на текущий первый элемент
         if (head) {
-            head->previous = newNode;
+            head->previous = newNode; // Устанавливаем указатель previous для старого head
         }
-        head = newNode;
+        head = newNode; // Новый элемент становится первым
     } else {
-        ArrayNode* temp = head;
-        for (int i = 0; i < index - 1; i++) {
-            temp = temp->next;
+        ArrayNode* current = head;
+        for (int i = 0; i < index - 1 && current != nullptr; ++i) {
+            current = current->next; // Находим элемент перед индексом
         }
-        newNode->next = temp->next;
-        newNode->previous = temp;
-        if (temp->next) {
-            temp->next->previous = newNode;
+        
+        if (current != nullptr) {
+            // Вставка в середину или конец
+            newNode->next = current->next; // Новый элемент указывает на следующий
+            if (current->next) {
+                current->next->previous = newNode; // Устанавливаем previous для следующего элемента
+            }
+            current->next = newNode; // Предыдущий указывает на новый элемент
+            newNode->previous = current; // Устанавливаем указатель previous для нового элемента
+        } else {
+            // Если индекс больше размера списка, вставка не производится
+            delete newNode; // Удаляем новый элемент, так как вставка не состоялась
+            cout << "Некорректный индекс.\n";
         }
-        temp->next = newNode;
     }
 }
+
+
 
 void clearArray(ArrayNode*& head) {
     while (head) {
@@ -195,11 +192,14 @@ void readFromFileArray(ArrayNode*& head, const string& filename) {
     }
     if (count > 0) {
         cout << count << " значений успешно прочитано из файла.\n";
-    } else {
+    }
+    else {
         cout << "Файл пуст или данные неверны.\n";
     }
     file.close();
 }
+
+
 
 bool containsArray(ArrayNode* head, int value) {
     ArrayNode* temp = head;
@@ -211,6 +211,5 @@ bool containsArray(ArrayNode* head, int value) {
     }
     return false;
 }
-
 
 
