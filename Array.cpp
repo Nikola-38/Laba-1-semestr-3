@@ -103,3 +103,16 @@ void printArray(const Array& arr) {
     }
     cout << endl;
 }
+
+void writeToFileArray(const Array& arr, const string& filename) {
+    ofstream file(filename);
+    if (!file) {
+        cerr << "Не удалось открыть файл для записи." << endl;
+        return;
+    }
+    for (int i = 0; i < arr.size; ++i) {
+        file << arr.data[i] << endl;
+    }
+    file.close();
+    cout << "Данные успешно записаны в файл: " << filename << endl;
+}
