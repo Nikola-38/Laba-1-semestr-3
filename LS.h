@@ -1,6 +1,6 @@
-#pragma once
+#include <iostream>
+#include <fstream>
 #include <string>
-using namespace std;
 
 struct NodeLS {
     int data;
@@ -8,14 +8,15 @@ struct NodeLS {
     NodeLS* previous;
 };
 
-void addHeadLS(NodeLS*& head, int value);
-void addTailLS(NodeLS*& head, int value);
-void deleteHeadLS(NodeLS*& head);
-void deleteTailLS(NodeLS*& head);
-bool deleteByValueLS(NodeLS*& head, int value);
-NodeLS* searchLS(NodeLS* head, int value) ;
-void printListLS(NodeLS* head) ;
-void clearListLS(NodeLS*& head) ;
-void writeToFileLS(NodeLS* head, const string& filename);
-void readFromFileLS(NodeLS*& head, const string& filename);
+// Функции для работы с двусвязным списком
+void addHeadLS(NodeLS*& head, NodeLS*& tail, int value);
+void addTailLS(NodeLS*& head, NodeLS*& tail, int value);
+void deleteHeadLS(NodeLS*& head, NodeLS*& tail);
+void deleteTailLS(NodeLS*& head, NodeLS*& tail);
+bool deleteByValueLS(NodeLS*& head, NodeLS*& tail, int value);
+NodeLS* searchLS(NodeLS* head, int value);
+void printListLS(NodeLS* head);
+void clearListLS(NodeLS*& head, NodeLS*& tail);
+void writeToFileLS(NodeLS* head, const std::string& filename);
+void readFromFileLS(NodeLS*& head, NodeLS*& tail, const std::string& filename);
 
