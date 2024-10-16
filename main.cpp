@@ -259,7 +259,7 @@ void handleListONECommands(NodeLO*& list, const string& filename) {
     }
 }
 
-void handleListSECCommands(NodeLS*& list2, const string& filename) {
+void handleListSECCommands(NodeLS*& head, NodeLS*& tail, const string& filename) {
     string command;
     while (true) {
         cout << ">> ";
@@ -268,28 +268,28 @@ void handleListSECCommands(NodeLS*& list2, const string& filename) {
         if (command == "LSADDHEAD") {
             int value;
             cin >> value;
-            addHeadLS(list2, value);
-            writeToFileLS(list2, filename);
+            addHeadLS(head, tail, value);  // Pass both head and tail
+            writeToFileLS(head, filename);
         }
         else if (command == "LSADDTAIL") {
             int value;
             cin >> value;
-            addTailLS(list2, value);
-            writeToFileLS(list2, filename);
+            addTailLS(head, tail, value);  // Pass both head and tail
+            writeToFileLS(head, filename);
         }
         else if (command == "LSDELHEAD") {
-            if (list2) {
-                deleteHeadLS(list2);
-                writeToFileLS(list2, filename);
+            if (head) {
+                deleteHeadLS(head, tail);  // Pass both head and tail
+                writeToFileLS(head, filename);
             }
             else {
                 cout << "Список пуст." << endl;
             }
         }
         else if (command == "LSDELTAIL") {
-            if (list2) {
-                deleteTailLS(list2);
-                writeToFileLS(list2, filename);
+            if (tail) {
+                deleteTailLS(head, tail);  // Pass both head and tail
+                writeToFileLS(head, filename);
             }
             else {
                 cout << "Список пуст." << endl;
@@ -298,8 +298,8 @@ void handleListSECCommands(NodeLS*& list2, const string& filename) {
         else if (command == "LSDELVAL") {
             int value;
             cin >> value;
-            if (deleteByValueLS(list2, value)) {
-                writeToFileLS(list2, filename);
+            if (deleteByValueLS(head, tail, value)) {  // Pass both head and tail
+                writeToFileLS(head, filename);
             }
             else {
                 cout << "Значение не найдено." << endl;
@@ -308,7 +308,7 @@ void handleListSECCommands(NodeLS*& list2, const string& filename) {
         else if (command == "LSSEARCH") {
             int value;
             cin >> value;
-            if (searchLS(list2, value)) {
+            if (searchLS(head, value)) {  // Pass head
                 cout << "Значение найдено." << endl;
             }
             else {
@@ -317,7 +317,7 @@ void handleListSECCommands(NodeLS*& list2, const string& filename) {
         }
         else if (command == "LSPRINT") {
             cout << "Список: ";
-            printListLS(list2);
+            printListLS(head);  // Pass head
         }
         else if (command == "EXIT") {
             break;
@@ -327,6 +327,7 @@ void handleListSECCommands(NodeLS*& list2, const string& filename) {
         }
     }
 }
+
 
 
 void handleStackCommands(Stack& stack) {
@@ -402,12 +403,13 @@ void handleQueueCommands(Queue& queue) {
 int main() {
     system("chcp 65001");
 
-    Array arr; // Теперь используем структуру Array вместо указателя
-    Ainit(arr, 10); // Инициализация массива с начальной емкостью 10
+    Array arr; // Using Array structure instead of pointer
+    Ainit(arr, 10); // Initialize array with initial capacity of 10
     AVLNode* root = nullptr;
     Hash hashTable;
     NodeLO* list = nullptr;
-    NodeLS* list2 = nullptr;
+    NodeLS* head = nullptr; // Changed to a head pointer
+    NodeLS* tail = nullptr; // Added a tail pointer
     Queue queue;
     Stack stack;
 
@@ -417,7 +419,7 @@ int main() {
         cin >> command;
 
         if (command == "ARRAY") {
-            handleArrayCommands(arr); // Передаем массив по ссылке
+            handleArrayCommands(arr); // Pass the array by reference
         }
         else if (command == "AVL") {
             handleAVLCommands(root);
@@ -429,7 +431,7 @@ int main() {
             handleListONECommands(list, "LISTONE.txt");
         }
         else if (command == "LS") {
-            handleListSECCommands(list2, "LISTSEC.txt");
+            handleListSECCommands(head, tail, "LISTSEC.txt"); // Pass both head and tail
         }
         else if (command == "QUEUE") {
             handleQueueCommands(queue);
@@ -450,7 +452,7 @@ int main() {
     clearAVL(root);
     hashTable.clearH();
     clearListLO(list);
-    clearListLS(list2);
+    clearListLS(head, tail);
     clearQueue(queue);
     clearStack(&stack);
 
