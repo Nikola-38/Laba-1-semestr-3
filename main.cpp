@@ -18,10 +18,13 @@ void handleArrayCommands(Array& arr) {
         cout << ">> ";
         cin >> command;
 
-        if (command == "APPEND") {
+        // Приводим команду к нижнему регистру
+        for (auto &c : command) c = tolower(c);
+
+        if (command == "append") {
             int value;
             cin >> value;
-            // Проверяем, существует ли значение, пройдя по массиву
+
             bool exists = false;
             for (int i = 0; i < arr.size; ++i) {
                 if (arr.data[i] == value) {
@@ -31,20 +34,20 @@ void handleArrayCommands(Array& arr) {
             }
             if (!exists) {
                 Aappend(arr, value);
-                // writeToFileArray(arr, "ARRAY.txt");
+                writeToFileArray(arr, "ARRAY.txt");
             } else {
                 cout << "Значение уже существует." << endl;
             }
-        } else if (command == "AINSERT") {
+        } else if (command == "ainsert") {
             int index, value;
             cin >> index >> value;
             if (index >= 0 && index <= Alength(arr)) {
                 Ainsert(arr, index, value);
-                // writeToFileArray(arr, "ARRAY.txt");
+                writeToFileArray(arr, "ARRAY.txt");
             } else {
                 cout << "Индекс вне диапазона." << endl;
             }
-        } else if (command == "AGET") {
+        } else if (command == "aget") {
             int index;
             cin >> index;
             if (index >= 0 && index < Alength(arr)) {
@@ -52,32 +55,32 @@ void handleArrayCommands(Array& arr) {
             } else {
                 cout << "Индекс вне диапазона." << endl;
             }
-        } else if (command == "AREMOVE") {
+        } else if (command == "aremov") {
             int index;
             cin >> index;
             if (index >= 0 && index < Alength(arr)) {
                 Aremove(arr, index);
-                // writeToFileArray(arr, "ARRAY.txt");
+                writeToFileArray(arr, "ARRAY.txt");
             } else {
                 cout << "Индекс вне диапазона." << endl;
             }
-        } else if (command == "AREPLACE") {
+        } else if (command == "areplace") {
             int index, value;
             cin >> index >> value;
             if (index >= 0 && index < Alength(arr)) {
                 Areplace(arr, index, value);
-                // writeToFileArray(arr, "ARRAY.txt");
+                writeToFileArray(arr, "ARRAY.txt");
             } else {
                 cout << "Индекс вне диапазона." << endl;
             }
-        } else if (command == "ASIZE") {
-            cout << "Длина списка: " << Alength(arr) << endl;
-        } else if (command == "PRINT") {
+        } else if (command == "asize") {
+            cout << "Длина массива: " << Alength(arr) << endl;
+        } else if (command == "print") {
             printArray(arr);
-        } else if (command == "EXIT") {
+        } else if (command == "exit") {
             break;
         } else {
-            cout << "Неизвестная команда.\n";
+            cout << "Неизвестная команда." << endl;
         }
     }
 }
