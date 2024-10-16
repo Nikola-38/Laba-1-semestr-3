@@ -18,3 +18,4 @@ void Aremove(Array& arr, int index);
 void Areplace(Array& arr, int index, int value);
 int Alength(const Array& arr);
 void printArray(const Array& arr);
+void writeToFileArray(const Array& arr, const string& filename);
