@@ -12,8 +12,7 @@
 
 using namespace std;
 
-void handleArrayCommands(ArrayNode*& arr) {
-
+void handleArrayCommands(Array& arr) {
     string command;
     while (true) {
         cout << ">> ";
@@ -22,52 +21,62 @@ void handleArrayCommands(ArrayNode*& arr) {
         if (command == "APPEND") {
             int value;
             cin >> value;
-            if (!containsArray(arr, value)) {
-                appendArray(arr, value);
-                writeToFileArray(arr, "ARRAY.txt");
+            // Проверяем, существует ли значение, пройдя по массиву
+            bool exists = false;
+            for (int i = 0; i < arr.size; ++i) {
+                if (arr.data[i] == value) {
+                    exists = true;
+                    break;
+                }
             }
-        }
-        else if (command == "AINSERT") {
+            if (!exists) {
+                Aappend(arr, value);
+                // writeToFileArray(arr, "ARRAY.txt");
+            } else {
+                cout << "Значение уже существует." << endl;
+            }
+        } else if (command == "AINSERT") {
             int index, value;
             cin >> index >> value;
-            if (index >= 0 && index <= sizeArray(arr)) {
-                insertArray(arr, index, value);  // Исправлено на insertArray
-                writeToFileArray(arr, "ARRAY.txt");
+            if (index >= 0 && index <= Alength(arr)) {
+                Ainsert(arr, index, value);
+                // writeToFileArray(arr, "ARRAY.txt");
+            } else {
+                cout << "Индекс вне диапазона." << endl;
             }
-        }
-        else if (command == "AGET") {
+        } else if (command == "AGET") {
             int index;
             cin >> index;
-            if (index >= 0 && index < sizeArray(arr)) {
-                cout << "Элемент по индексу " << index << ": " << getArray(arr, index) << endl;
+            if (index >= 0 && index < Alength(arr)) {
+                cout << "Элемент по индексу " << index << ": " << Aget(arr, index) << endl;
+            } else {
+                cout << "Индекс вне диапазона." << endl;
             }
-        }
-        else if (command == "AREMOVE") {
+        } else if (command == "AREMOVE") {
             int index;
             cin >> index;
-            if (index >= 0 && index < sizeArray(arr)) {
-                removeArray(arr, index);
-                writeToFileArray(arr, "ARRAY.txt");
+            if (index >= 0 && index < Alength(arr)) {
+                Aremove(arr, index);
+                // writeToFileArray(arr, "ARRAY.txt");
+            } else {
+                cout << "Индекс вне диапазона." << endl;
             }
-        }
-        else if (command == "AREPLACE") {
+        } else if (command == "AREPLACE") {
             int index, value;
             cin >> index >> value;
-            if (index >= 0 && index < sizeArray(arr)) {
-                replaceArray(arr, index, value);
-                writeToFileArray(arr, "ARRAY.txt");
+            if (index >= 0 && index < Alength(arr)) {
+                Areplace(arr, index, value);
+                // writeToFileArray(arr, "ARRAY.txt");
+            } else {
+                cout << "Индекс вне диапазона." << endl;
             }
-        }
-        else if (command == "ASIZE") {
-            cout << "Длина списка: " << sizeArray(arr) << endl;
-        }
-        else if (command == "PRINT") {
+        } else if (command == "ASIZE") {
+            cout << "Длина списка: " << Alength(arr) << endl;
+        } else if (command == "PRINT") {
             printArray(arr);
-        }
-        else if (command == "EXIT") {
+        } else if (command == "EXIT") {
             break;
-        }
-        else {
+        } else {
             cout << "Неизвестная команда.\n";
         }
     }
@@ -386,9 +395,12 @@ void handleQueueCommands(Queue& queue) {
     }
 }
 
+
 int main() {
     system("chcp 65001");
-    ArrayNode* arr = nullptr;
+
+    Array arr; // Теперь используем структуру Array вместо указателя
+    Ainit(arr, 10); // Инициализация массива с начальной емкостью 10
     AVLNode* root = nullptr;
     Hash hashTable;
     NodeLO* list = nullptr;
@@ -402,7 +414,7 @@ int main() {
         cin >> command;
 
         if (command == "ARRAY") {
-            handleArrayCommands(arr);
+            handleArrayCommands(arr); // Передаем массив по ссылке
         }
         else if (command == "AVL") {
             handleAVLCommands(root);
@@ -431,7 +443,7 @@ int main() {
     }
 
     // Очистка памяти
-    clearArray(arr);
+    Adestroy(arr); // Освобождаем память массива
     clearAVL(root);
     hashTable.clearH();
     clearListLO(list);
